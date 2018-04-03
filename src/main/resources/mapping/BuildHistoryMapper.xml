@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudzone.mapper.BuildHistoryMapper">
+  <resultMap id="BaseResultMap" type="com.cloudzone.common.entity.BuildHistory">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="build_id" jdbcType="BIGINT" property="buildId" />
+    <result column="build_meta_id" jdbcType="BIGINT" property="buildMetaId" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="time_cosuming" jdbcType="INTEGER" property="timeCosuming" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <resultMap id="BuildHistoryVOResultMap" type="com.cloudzone.common.entity.jenkins.BuildHistoryVO">
+    <result column="project_id" jdbcType="BIGINT" property="projectId" />
+    <result column="project_name" jdbcType="BIGINT" property="projectName" />
+    <result column="build_id" jdbcType="BIGINT" property="buildId" />
+    <result column="user_name" jdbcType="BIGINT" property="buildUser" />
+    <result column="status" jdbcType="INTEGER" property="buildStatus" />
+    <result column="time_cosuming" jdbcType="INTEGER" property="buildDuration" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="buildDate" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, build_id, build_meta_id, status, time_cosuming, create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from build_history
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectByBuildMetaIdAndBuildId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from build_history
+    where build_meta_id = #{buildMetaId,jdbcType=BIGINT}
+    and build_id = #{buildId,jdbcType=BIGINT}
+  </select>
+  <select id="selectBuildHistories" resultMap="BuildHistoryVOResultMap">
+    SELECT
+      tab.project_id,
+      tab.project_name,
+      tab.user_name,
+      bh.build_id,
+      bh.build_meta_id,
+      bh.`status`,
+      bh.time_cosuming,
+      bh.create_time
+    FROM
+      build_history bh
+    JOIN (
+      SELECT
+        pro.id project_id,
+        pro.`name` project_name,
+        pro.user_name,
+        bm.id id
+      FROM
+        project pro
+        JOIN build_meta bm ON pro.id = bm.project_id
+    ) tab ON bh.build_meta_id = tab.id ORDER BY bh.create_time desc
+  </select>
+  <select id="selectBuildHistoriesByProjectId" parameterType="java.lang.Long" resultMap="BuildHistoryVOResultMap">
+    SELECT
+      tab.project_id,
+      tab.project_name,
+      tab.user_name,
+      bh.build_id,
+      bh.build_meta_id,
+      bh.`status`,
+      bh.time_cosuming,
+      bh.create_time
+    FROM
+      build_history bh
+      JOIN (
+        SELECT
+        pro.id project_id,
+        pro.`name` project_name,
+        pro.user_name,
+        bm.id id
+      FROM
+        project pro
+        JOIN build_meta bm ON pro.id = bm.project_id
+        AND pro.id = #{projectId,jdbcType=BIGINT}
+    ) tab ON bh.build_meta_id = tab.id ORDER BY bh.create_time desc
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from build_history
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.cloudzone.common.entity.BuildHistory">
+    insert into build_history (id, build_id, build_meta_id, 
+      status, time_cosuming, create_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{buildId,jdbcType=BIGINT}, #{buildMetaId,jdbcType=BIGINT}, 
+      #{status,jdbcType=INTEGER}, #{timeCosuming,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.cloudzone.common.entity.BuildHistory">
+    insert into build_history
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="buildId != null">
+        build_id,
+      </if>
+      <if test="buildMetaId != null">
+        build_meta_id,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="timeCosuming != null">
+        time_cosuming,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="buildId != null">
+        #{buildId,jdbcType=BIGINT},
+      </if>
+      <if test="buildMetaId != null">
+        #{buildMetaId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="timeCosuming != null">
+        #{timeCosuming,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.cloudzone.common.entity.BuildHistory">
+    update build_history
+    <set>
+      <if test="buildId != null">
+        build_id = #{buildId,jdbcType=BIGINT},
+      </if>
+      <if test="buildMetaId != null">
+        build_meta_id = #{buildMetaId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="timeCosuming != null">
+        time_cosuming = #{timeCosuming,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.cloudzone.common.entity.BuildHistory">
+    update build_history
+    set build_id = #{buildId,jdbcType=BIGINT},
+      build_meta_id = #{buildMetaId,jdbcType=BIGINT},
+      status = #{status,jdbcType=INTEGER},
+      time_cosuming = #{timeCosuming,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateStatusByBuildMetaIdAndBuildId" parameterType="com.cloudzone.common.entity.BuildHistory">
+      update build_history
+      <set>
+          <if test="status != null">
+              status = #{status,jdbcType=INTEGER},
+          </if>
+          <if test="timeCosuming != null">
+              time_cosuming = #{timeCosuming,jdbcType=INTEGER},
+          </if>
+      </set>
+    where build_meta_id = #{buildMetaId,jdbcType=BIGINT} and build_id = #{buildId,jdbcType=BIGINT}
+  </update>
+</mapper>

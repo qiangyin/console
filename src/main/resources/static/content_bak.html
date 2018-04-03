@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>WebSocket日志展示</title>
+    <link rel="stylesheet" href="css/content.css">
+    <script type="text/javascript" src="js/jquery-2.1.4.js"></script>
+    <script type="text/javascript" src="js/stomp-2.2.3.js"></script>
+    <script type="text/javascript" src="js/sockjs-client-1.1.4.js"></script>
+</head>
+<body>
+<h1>jvm进程内的日志</h1>
+<button onclick="openOutputSocket()">开启日志</button>
+<button onclick="closeOutClient()">关闭日志</button>
+<div id="log-container">
+    <div></div>
+</div>
+<h1>指定监听日志文件的日志</h1>
+<button onclick="openFileSocket()">开启日志</button>
+<button onclick="closeFileStompClient()">关闭日志</button>
+<div id="file-container">
+    <div></div>
+</div>
+</body>
+<script type="text/javascript">
+
+    //var baseUrl = "http://127.0.0.1:8080/index.html";
+
+    var stompOutClient = null;
+    var stompFileClient = null;
+    var baseUrl = location.protocol + "//" + window.location.host + "/websocket?token=k2";
+    console.log("baseUrl = " + baseUrl);
+
+    var consoleTopic = "topic/consoleLogger";
+    var fileTopic = "topic/fileLogger";
+
+    $(document).ready(function () {
+        openOutputSocket();
+        openFileSocket();
+    });
+
+    function openOutputSocket() {
+        if (stompOutClient == null) {
+            var socket = new SockJS(baseUrl);
+
+            var $consoleContainer = $("#log-container");
+            var $consoleContainerDiv = $("#log-container div");
+
+            stompOutClient = Stomp.over(socket);
+            stompOutClient.connect({token: "k2"}, function (frame) {
+                stompOutClient.subscribe(consoleTopic, function (event) {
+                    var content = JSON.parse(event.body);
+                    var val = content.timestamp + " " + content.level + " --- [" + content.threadName + "] "
+                        + content.className + "   :" + content.body;
+                    $consoleContainerDiv.append(val).append("<br/>");
+
+                    var topNumber = $consoleContainerDiv.height() - $consoleContainer.height();
+                    $consoleContainer.scrollTop(topNumber);
+                }, {
+                    token: "kltoen"
+                });
+            });
+        } else {
+            console.log("stompOutClient has init already!");
+        }
+    }
+
+    function openFileSocket() {
+        if (stompFileClient == null) {
+            var socket = new SockJS(baseUrl);
+
+            var $fileContainer = $("#file-container");
+            var $fileContainerDiv = $("#file-container div");
+
+            stompFileClient = Stomp.over(socket);
+            stompFileClient.connect({token: "k2"}, function (frame) {
+                stompFileClient.subscribe(fileTopic, function (event) {
+                    var content = event.body;
+                    $fileContainerDiv.append(content).append("<br/>");
+                    $fileContainer.scrollTop($fileContainerDiv.height() - $fileContainer.height());
+                }, {
+                    token: "kltoen"
+                });
+            });
+        } else {
+            console.log("stompFileClient has init already!");
+        }
+    }
+
+    function closeOutClient() {
+        if (stompOutClient != null) {
+            stompOutClient.disconnect();
+            stompOutClient = null;
+        }
+    }
+
+    function closeFileStompClient() {
+        if (stompFileClient != null) {
+            stompFileClient.disconnect();
+            stompFileClient = null;
+        }
+    }
+</script>
+</body>
+</html>

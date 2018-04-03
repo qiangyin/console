@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>WebSocket日志展示</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script type="text/javascript" src="js/jquery-2.1.4.js"></script>
+    <script type="text/javascript" src="js/stomp-2.2.3.js"></script>
+    <script type="text/javascript" src="js/sockjs-client-1.1.4.js"></script>
+    <script type="text/javascript" src="js/ajax.controller.js"></script>
+    <script type="text/javascript" src="js/config.js"></script>
+</head>
+<body>
+
+
+</body>
+<style>
+    table {border-collapse:collapse;}
+    td{
+        border-left:0;
+        border-top:0;
+        border-right:1px solid #00cd11;
+        border-bottom:1px solid #cb1122;
+        font-family:"Courier New", Courier, mono;
+        font-size:11px;
+        height:25px;
+        padding:0 12px 0 12px;
+        border-collapse:collapse;
+    }
+</style>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#b01").click(function() {
+            ajaxDataController("/api/v1/log/pod/list", null, null, function (data) {
+                if (data && data.code === 0) {
+
+                } else {
+
+                }
+                let prefix = `<table border="1">
+                    <tr>
+                        <th>namespace</th>
+                        <th>podname</th>
+                        <th>nodeName</th>
+                    </tr>
+                `
+                let suffix = `</table>`
+                let htmlArr = data.data.map(item => {
+                     return `<tr><th>${item.namespace}</th><th>${item.podName}</th><th>${item.nodeName}</th><tr>`
+                })
+
+                $("#podlist").html(prefix+htmlArr.join('')+suffix);
+            }, true, "get");
+
+        });
+    });
+</script>
+
+<div id="podlist"></div>
+<button id="b01" type="button">获取pod.list</button>
+
+</body>
+</html>

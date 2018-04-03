@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudzone.mapper.ServiceMapper">
+  <resultMap id="BaseResultMap" type="com.cloudzone.common.entity.Service">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="project_id" jdbcType="BIGINT" property="projectId" />
+    <result column="service_config_id" jdbcType="BIGINT" property="serviceConfigId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="max_instance" jdbcType="BIGINT" property="maxInstance" />
+    <result column="min_instance" jdbcType="BIGINT" property="minInstance" />
+    <result column="img_url" jdbcType="VARCHAR" property="imgUrl" />
+    <result column="img_ver" jdbcType="VARCHAR" property="imgVer" />
+    <result column="dep_kind" jdbcType="VARCHAR" property="depKind" />
+    <result column="external_ip" jdbcType="VARCHAR" property="externalIp" />
+    <result column="external_port" jdbcType="INTEGER" property="externalPort" />
+    <result column="inside_domain" jdbcType="VARCHAR" property="insideDomain" />
+    <result column="inside_port" jdbcType="INTEGER" property="insidePort" />
+    <result column="svc_type" jdbcType="VARCHAR" property="svcType" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="target_cpu_utilization" jdbcType="INTEGER" property="targetCpuUtilization"></result>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, project_id, service_config_id, name, status, max_instance, min_instance, img_url, 
+    img_ver, dep_kind, external_ip, external_port, inside_domain, inside_port, svc_type, 
+    create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from service
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from service
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" parameterType="com.cloudzone.common.entity.Service">
+    insert into service (project_id, service_config_id,
+      name, status, max_instance, 
+      min_instance, img_url, img_ver, 
+      dep_kind, external_ip, external_port, 
+      inside_domain, inside_port, svc_type, 
+      create_time, target_cpu_utilization)
+    values (#{projectId,jdbcType=BIGINT}, #{serviceConfigId,jdbcType=BIGINT},
+      #{name,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{maxInstance,jdbcType=BIGINT}, 
+      #{minInstance,jdbcType=BIGINT}, #{imgUrl,jdbcType=VARCHAR}, #{imgVer,jdbcType=VARCHAR}, 
+      #{depKind,jdbcType=VARCHAR}, #{externalIp,jdbcType=VARCHAR}, #{externalPort,jdbcType=INTEGER}, 
+      #{insideDomain,jdbcType=VARCHAR}, #{insidePort,jdbcType=INTEGER}, #{svcType,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{targetCpuUtilization,jdbcType=INTEGER})
+  </insert>
+
+  <insert id="insertSelective" parameterType="com.cloudzone.common.entity.Service">
+    insert into service
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="serviceConfigId != null">
+        service_config_id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="maxInstance != null">
+        max_instance,
+      </if>
+      <if test="minInstance != null">
+        min_instance,
+      </if>
+      <if test="imgUrl != null">
+        img_url,
+      </if>
+      <if test="imgVer != null">
+        img_ver,
+      </if>
+      <if test="depKind != null">
+        dep_kind,
+      </if>
+      <if test="externalIp != null">
+        external_ip,
+      </if>
+      <if test="externalPort != null">
+        external_port,
+      </if>
+      <if test="insideDomain != null">
+        inside_domain,
+      </if>
+      <if test="insidePort != null">
+        inside_port,
+      </if>
+      <if test="svcType != null">
+        svc_type,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=BIGINT},
+      </if>
+      <if test="serviceConfigId != null">
+        #{serviceConfigId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="maxInstance != null">
+        #{maxInstance,jdbcType=BIGINT},
+      </if>
+      <if test="minInstance != null">
+        #{minInstance,jdbcType=BIGINT},
+      </if>
+      <if test="imgUrl != null">
+        #{imgUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="imgVer != null">
+        #{imgVer,jdbcType=VARCHAR},
+      </if>
+      <if test="depKind != null">
+        #{depKind,jdbcType=VARCHAR},
+      </if>
+      <if test="externalIp != null">
+        #{externalIp,jdbcType=VARCHAR},
+      </if>
+      <if test="externalPort != null">
+        #{externalPort,jdbcType=INTEGER},
+      </if>
+      <if test="insideDomain != null">
+        #{insideDomain,jdbcType=VARCHAR},
+      </if>
+      <if test="insidePort != null">
+        #{insidePort,jdbcType=INTEGER},
+      </if>
+      <if test="svcType != null">
+        #{svcType,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.cloudzone.common.entity.Service">
+    update service
+    <set>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=BIGINT},
+      </if>
+      <if test="serviceConfigId != null">
+        service_config_id = #{serviceConfigId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="maxInstance != null">
+        max_instance = #{maxInstance,jdbcType=BIGINT},
+      </if>
+      <if test="minInstance != null">
+        min_instance = #{minInstance,jdbcType=BIGINT},
+      </if>
+      <if test="imgUrl != null">
+        img_url = #{imgUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="imgVer != null">
+        img_ver = #{imgVer,jdbcType=VARCHAR},
+      </if>
+      <if test="depKind != null">
+        dep_kind = #{depKind,jdbcType=VARCHAR},
+      </if>
+      <if test="externalIp != null">
+        external_ip = #{externalIp,jdbcType=VARCHAR},
+      </if>
+      <if test="externalPort != null">
+        external_port = #{externalPort,jdbcType=INTEGER},
+      </if>
+      <if test="insideDomain != null">
+        inside_domain = #{insideDomain,jdbcType=VARCHAR},
+      </if>
+      <if test="insidePort != null">
+        inside_port = #{insidePort,jdbcType=INTEGER},
+      </if>
+      <if test="svcType != null">
+        svc_type = #{svcType,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.cloudzone.common.entity.Service">
+    update service
+    set project_id = #{projectId,jdbcType=BIGINT},
+      service_config_id = #{serviceConfigId,jdbcType=BIGINT},
+      name = #{name,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      max_instance = #{maxInstance,jdbcType=BIGINT},
+      min_instance = #{minInstance,jdbcType=BIGINT},
+      img_url = #{imgUrl,jdbcType=VARCHAR},
+      img_ver = #{imgVer,jdbcType=VARCHAR},
+      dep_kind = #{depKind,jdbcType=VARCHAR},
+      external_ip = #{externalIp,jdbcType=VARCHAR},
+      external_port = #{externalPort,jdbcType=INTEGER},
+      inside_domain = #{insideDomain,jdbcType=VARCHAR},
+      inside_port = #{insidePort,jdbcType=INTEGER},
+      svc_type = #{svcType,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateStatusByName" parameterType="com.cloudzone.common.entity.Service">
+    UPDATE service s SET status = #{status, jdbcType=INTEGER} WHERE s.`name` = #{name, jdbcType=VARCHAR}
+  </update>
+
+
+</mapper>

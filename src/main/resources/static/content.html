@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8"/>
+    <title>Log-WebSocket</title>
+    <link rel="stylesheet" href="css/content.css">
+    <script type="text/javascript" src="js/jquery-2.1.4.js"></script>
+    <script type="text/javascript" src="js/stomp-2.2.3.js"></script>
+    <script type="text/javascript" src="js/sockjs-client-1.1.4.js"></script>
+    <script type="text/javascript" src="js/ajax.controller.js"></script>
+    <script type="text/javascript" src="js/config.js"></script>
+</head>
+<body>
+<noscript>
+    <h2>Enable Java script and reload this page to run web socket </h2></noscript>
+<div>
+    <!--<div>-->
+    <!--<button id="sendWebsocketName" onclick="sendWebsocketName();">获取数据</button>-->
+    <!--<br/><br/>-->
+    <!--</div>-->
+
+    <div id="file-container">
+        <div></div>
+    </div>
+</div>
+</body>
+</html>
+
+<script type="text/javascript">
+
+    var stompClient = null;
+
+    //var baseUrl = "http://127.0.0.1:8080/websocket";
+    var baseUrl = location.protocol + "//" + location.host + "/websocket";
+    console.log("baseUrl = " + baseUrl);
+
+    var headers = {
+        "namespace": GetQueryString("namespace") || "",
+        "podName": GetQueryString("podName") || ""
+    };
+
+    $(function () {
+
+        if (headers.namespace.trim().length == 0) {
+            alert("url参数字段 namespace 无效！");
+            return;
+        }
+        if (headers.podName.trim().length == 0) {
+            alert("url参数字段 podName 无效！");
+            return;
+        }
+
+        // 根据header头创建对应的websocket连接
+        connect(headers);
+
+    });
+
+
+    function connect(headers) {
+        if (stompClient != null) {
+            console.log("stompClient has init already!");
+            return;
+        }
+
+        var $fileContainer = $("#file-container");
+        var $fileContainerDiv = $("#file-container div");
+
+        // 客户端接收服务端消息的地址前缀 如"/topic",此处前缀“/topic”需要前后端约定
+        var destination = "/topic/" + headers.namespace + "/" + headers.podName;
+
+        var socket = new SockJS(baseUrl);
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log('connected: ' + frame);
+            var newLine = "<br/>";
+            var no_log_content_desc = "";
+            var no_log_content_count = 0;
+            var scrollHeight = 0;
+
+            stompClient.subscribe(destination, function (message) {
+                console.log('message == ' + message.body);
+
+                var content = (message.body || "").replace(/\n/gi, newLine).replace(/\r/gi, newLine);
+                var tmpFlag = $.trim(content).length == 0;
+                if (tmpFlag) {
+                    if (no_log_content_count === 0) {
+                        no_log_content_count++;
+                    }
+
+                    // 每次推送字符串为空，则只需要判断第一次推送的数据是否为空；
+                    // 如果后端接口值只推送“有效数据”，则前端的stomp协议又无法获取状态
+                    // 增量拉取日志，采用append()； 全量拉取日志采用html()设置进去，确保$fileContainerDiv只有一份内容
+                    if (no_log_content_count === 1) {
+                        $fileContainerDiv.html(no_log_content_desc).append("<br/>");
+                        scrollHeight = $fileContainerDiv.height() - $fileContainer.height();
+                        $fileContainer.scrollTop(scrollHeight);
+                    }
+                } else {
+                    $fileContainerDiv.html(content).append("<br/>");
+                    scrollHeight = $fileContainerDiv.height() - $fileContainer.height();
+                    $fileContainer.scrollTop(scrollHeight);
+                }
+            });
+
+            // 客户端给服务端发消息的地址前缀 如"/app/log", 此处前缀“/app”需要前后端约定
+            stompClient.send("/app/log", {}, JSON.stringify(headers));
+            console.log("send websocket name success. the param is: " + JSON.stringify(headers));
+        });
+    }
+
+    function disconnect() {
+        if (stompClient != null) {
+            stompClient.disconnect(function () {
+                console.log("disconnected stomp client ok!");
+            }, {});
+            stompClient = null;
+        }
+        console.log("disconnected stomp end!");
+    }
+
+    window.unload = function () {
+        disconnect();
+    };
+
+    // $(window).unload(function () {
+    //     // 很意外，此处不能执行disconnect(),否则报错？
+    //     //disconnect();
+    // });
+
+
+</script>

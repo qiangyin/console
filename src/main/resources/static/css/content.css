@@ -1,0 +1,17 @@
+
+#log-container {
+    height: 360px;
+    overflow-y: scroll;
+    background: #333;
+    color: #aaa;
+    padding: 10px;
+}
+
+#file-container {
+    height: 360px;
+    overflow-y: scroll;
+    background: #333;
+    color: #aaa;
+    padding: 10px;
+    font-size: 12px;
+}

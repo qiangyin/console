@@ -1,0 +1,72 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: console
+  zipkin:
+    base-url: http://10.112.101.98:9411
+  datasource:
+    name: gc_cloud
+    url: jdbc:mysql://10.112.101.86:8400/gc_cloud?characterEncoding=utf8&useSSL=false&autoReconnect=true&failOverReadOnly=false
+    username: root
+    password: 74ba91471e3fdefb718a7246791dceb0
+    # 使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    filters: stat
+    maxActive: 20
+    initialSize: 1
+    maxWait: 60000
+    minIdle: 1
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: select 'x'
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxOpenPreparedStatements: 20
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true
+
+logging:
+  path: /var/logs/gc_cloud
+  file: /var/logs/gc_cloud/console.log
+mybatis:
+  mapper-locations: classpath:mapping/*.xml
+  type-aliases-package: com.cloudozne.common.entity
+
+##pagehelper分页插件
+#pagehelper:
+#    helperDialect: mysql
+#    reasonable: true
+#    supportMethodsArguments: true
+#    params: count=countSql
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://10.112.101.98:9001/eureka/
+    fetch-registry:
+      true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ipAddress}:${server.port}
+#hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 600000
+#hystrix.command.default.execution.timeout.enabled: false
+feign:
+  hystrix:
+    enabled: false
+ribbon:
+  readTimeout: 6000000
+  connectTimeout: 6000000
+  maxAutoRetries: 0
+
+# websocket push log data, second
+websocket:
+  push:
+    period: 30
+    delay: 20
+  log:
+    enable: true

@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cloudzone.mapper.BuildMetaMapper">
+  <resultMap id="BaseResultMap" type="com.cloudzone.common.entity.BuildMeta">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="project_id" jdbcType="BIGINT" property="projectId" />
+    <result column="build_config_id" jdbcType="BIGINT" property="buildConfigId" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="code_url" jdbcType="VARCHAR" property="codeUrl" />
+    <result column="branch" jdbcType="VARCHAR" property="branch" />
+    <result column="img_repository" jdbcType="VARCHAR" property="imgRepository" />
+    <result column="cate_path" jdbcType="VARCHAR" property="catePath" />
+    <result column="run_name" jdbcType="VARCHAR" property="runName" />
+    <result column="img_ver" jdbcType="VARCHAR" property="imgVer" />
+    <result column="expose_port" jdbcType="INTEGER" property="exposePort" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <resultMap id="BuildProjectMap" type="com.cloudzone.common.entity.jenkins.BuildProjectVO">
+    <result column="project_id" jdbcType="BIGINT" property="projectId" />
+    <result column="project_name" jdbcType="VARCHAR" property="projectName" />
+    <result column="status" jdbcType="INTEGER" property="projectStatus" />
+    <result column="code_url" jdbcType="VARCHAR" property="codeRepository" />
+    <result column="branch" jdbcType="VARCHAR" property="codeBranch" />
+    <result column="img_repository" jdbcType="VARCHAR" property="imageRepository" />
+  </resultMap>
+  <resultMap id="BuildDetailResultMap" type="com.cloudzone.common.entity.jenkins.BuildDetailVO">
+    <result column="project_id" jdbcType="BIGINT" property="projectId" />
+    <result column="project_name" jdbcType="VARCHAR" property="projectName" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="des" jdbcType="VARCHAR" property="des" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <association property="buildConfig" javaType="com.cloudzone.common.entity.jenkins.BuildConfigVO">
+        <result column="project_id" jdbcType="BIGINT" property="projectId" />
+        <result column="project_name" jdbcType="VARCHAR" property="projectName" />
+        <result column="code_url" jdbcType="VARCHAR" property="codeRepository" />
+        <result column="branch" jdbcType="VARCHAR" property="codeBranch" />
+        <result column="build_language" jdbcType="VARCHAR" property="buildLanguage" />
+        <result column="language_version" jdbcType="VARCHAR" property="languageVersion" />
+        <result column="img_repository" jdbcType="VARCHAR" property="imageRepository" />
+        <result column="cate_path" jdbcType="VARCHAR" property="buildDirectory" />
+        <result column="run_name" jdbcType="VARCHAR" property="buildName" />
+        <result column="img_ver" jdbcType="VARCHAR" property="imageName" />
+        <result column="expose_port" jdbcType="INTEGER" property="exposePort" />
+        <result column="img_path" jdbcType="VARCHAR" property="fromImage" />
+    </association>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, project_id, build_config_id, status, code_url, branch, img_repository, cate_path, 
+    run_name, img_ver, expose_port, create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from build_meta
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectBuildMetaByProjectId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from build_meta
+    where project_id = #{projectId,jdbcType=BIGINT}
+  </select>
+  <select id="selectBuildProjects" resultMap="BuildProjectMap">
+    SELECT
+      p.id project_id,
+      p.`name` project_name,
+      p.user_name,
+      bm.`status`,
+      bm.code_url,
+      bm.branch,
+      bm.img_repository
+    FROM
+      project p
+      JOIN build_meta bm ON p.id = bm.project_id ORDER BY p.create_time desc
+  </select>
+  <select id="selectBuildDetailByProjectId" resultMap="BuildDetailResultMap">
+    SELECT
+      tab.project_id,
+      tab.project_name,
+      tab.user_name,
+      tab.des,
+      tab.create_time,
+      tab.`status`,
+      tab.code_url,
+      tab.branch,
+      tab.img_repository,
+      tab.cate_path,
+      tab.run_name,
+      tab.img_ver,
+      tab.expose_port,
+      bc.`name` build_language,
+      bc.config language_version,
+      bc.img_path
+    FROM
+      (
+      SELECT
+        p.id project_id,
+        p.`name` project_name,
+        p.user_name,
+        p.des,
+        p.create_time,
+        bm.build_config_id,
+        bm.`status`,
+        bm.code_url,
+        bm.branch,
+        bm.img_repository,
+        bm.cate_path,
+        bm.run_name,
+        bm.img_ver,
+        bm.expose_port
+      FROM
+        project p
+    JOIN build_meta bm ON p.id = bm.project_id AND p.id = #{projectId,jdbcType=BIGINT}
+    ) tab
+    JOIN build_config bc ON tab.build_config_id = bc.id
+    ORDER BY tab.create_time DESC
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from build_meta
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.cloudzone.common.entity.BuildMeta">
+    insert into build_meta (project_id, build_config_id,
+      status, code_url, branch, 
+      img_repository, cate_path, run_name, 
+      img_ver, expose_port, create_time
+      )
+    values (#{projectId,jdbcType=BIGINT}, #{buildConfigId,jdbcType=BIGINT},
+      #{status,jdbcType=INTEGER}, #{codeUrl,jdbcType=VARCHAR}, #{branch,jdbcType=VARCHAR}, 
+      #{imgRepository,jdbcType=VARCHAR}, #{catePath,jdbcType=VARCHAR}, #{runName,jdbcType=VARCHAR}, 
+      #{imgVer,jdbcType=VARCHAR}, #{exposePort,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.cloudzone.common.entity.BuildMeta">
+    insert into build_meta
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="buildConfigId != null">
+        build_config_id,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="codeUrl != null">
+        code_url,
+      </if>
+      <if test="branch != null">
+        branch,
+      </if>
+      <if test="imgRepository != null">
+        img_repository,
+      </if>
+      <if test="catePath != null">
+        cate_path,
+      </if>
+      <if test="runName != null">
+        run_name,
+      </if>
+      <if test="imgVer != null">
+        img_ver,
+      </if>
+      <if test="exposePort != null">
+        expose_port,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=BIGINT},
+      </if>
+      <if test="buildConfigId != null">
+        #{buildConfigId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="codeUrl != null">
+        #{codeUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="branch != null">
+        #{branch,jdbcType=VARCHAR},
+      </if>
+      <if test="imgRepository != null">
+        #{imgRepository,jdbcType=VARCHAR},
+      </if>
+      <if test="catePath != null">
+        #{catePath,jdbcType=VARCHAR},
+      </if>
+      <if test="runName != null">
+        #{runName,jdbcType=VARCHAR},
+      </if>
+      <if test="imgVer != null">
+        #{imgVer,jdbcType=VARCHAR},
+      </if>
+      <if test="exposePort != null">
+        #{exposePort,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.cloudzone.common.entity.BuildMeta">
+    update build_meta
+    <set>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=BIGINT},
+      </if>
+      <if test="buildConfigId != null">
+        build_config_id = #{buildConfigId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="codeUrl != null">
+        code_url = #{codeUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="branch != null">
+        branch = #{branch,jdbcType=VARCHAR},
+      </if>
+      <if test="imgRepository != null">
+        img_repository = #{imgRepository,jdbcType=VARCHAR},
+      </if>
+      <if test="catePath != null">
+        cate_path = #{catePath,jdbcType=VARCHAR},
+      </if>
+      <if test="runName != null">
+        run_name = #{runName,jdbcType=VARCHAR},
+      </if>
+      <if test="imgVer != null">
+        img_ver = #{imgVer,jdbcType=VARCHAR},
+      </if>
+      <if test="exposePort != null">
+        expose_port = #{exposePort,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.cloudzone.common.entity.BuildMeta">
+    update build_meta
+    set project_id = #{projectId,jdbcType=BIGINT},
+      build_config_id = #{buildConfigId,jdbcType=BIGINT},
+      status = #{status,jdbcType=INTEGER},
+      code_url = #{codeUrl,jdbcType=VARCHAR},
+      branch = #{branch,jdbcType=VARCHAR},
+      img_repository = #{imgRepository,jdbcType=VARCHAR},
+      cate_path = #{catePath,jdbcType=VARCHAR},
+      run_name = #{runName,jdbcType=VARCHAR},
+      img_ver = #{imgVer,jdbcType=VARCHAR},
+      expose_port = #{exposePort,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
