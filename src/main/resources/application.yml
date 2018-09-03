@@ -4,10 +4,10 @@ spring:
   application:
     name: console
   zipkin:
-    base-url: http://10.112.101.98:9411
+    base-url: http://192.168.101.98:9411
   datasource:
     name: gc_cloud
-    url: jdbc:mysql://10.112.101.86:8400/gc_cloud?characterEncoding=utf8&useSSL=false&autoReconnect=true&failOverReadOnly=false
+    url: jdbc:mysql://192.168.101.86:8400/gc_cloud?characterEncoding=utf8&useSSL=false&autoReconnect=true&failOverReadOnly=false
     username: root
     password: 74ba91471e3fdefb718a7246791dceb0
     # 使用druid数据源
@@ -47,7 +47,7 @@ mybatis:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://10.112.101.98:9001/eureka/
+      defaultZone: http://192.168.101.98:9001/eureka/
     fetch-registry:
       true
   instance:

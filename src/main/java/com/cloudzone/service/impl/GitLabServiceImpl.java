@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Gitlab Service
  *
- * @author rongzhihong@gome.com.cn
+ * @author tongqiangying@gmail.com
  * @since 2018/3/12
  */
 @Service

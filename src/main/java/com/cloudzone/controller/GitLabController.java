@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * gitlab相关操作
  *
- * @author rongzhihong@gome.com.cn
+ * @author tongqiangying@gmail.com
  * @since 2018/3/9
  */
 @RestController

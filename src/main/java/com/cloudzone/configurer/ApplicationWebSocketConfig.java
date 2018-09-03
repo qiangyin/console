@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author tianyuliang@gome.com.cn
+ * @author tongqiangying@gmail.com
  * @since 2018/3/22
  */
 @Configuration
